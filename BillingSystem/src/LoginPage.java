@@ -17,13 +17,19 @@ import javax.naming.spi.DirStateFactory.Result;
 //import java.awt.*;
 
 public class LoginPage extends javax.swing.JFrame {
-	
-	private Connection conn;
-	//private Statement st;
-	//private ResultSet rs;
-	
-	
+	// Create object for the connection
+	Connection conn;
+	//Create method for the datbase connection
+	public void DBConnection(){
+		try{
+    		//Class.forName("com.jdbc.mysql.Driver");
+    		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/admin_database","root","");
+    		JOptionPane.showMessageDialog(null, "Connection Successful");
+    	}catch(Exception e){
+    		JOptionPane.showMessageDialog(null, e);
+    	} 
 		
+	}	
 
 	private static final long serialVersionUID = 1L;
 	/**
@@ -240,43 +246,42 @@ public class LoginPage extends javax.swing.JFrame {
 
     @SuppressWarnings("deprecation")
 	private void jbtLoginActionPerformed(java.awt.event.ActionEvent evt) {
-    	// get String
-    	
+    	// Code used to authenticate user 
     	try{
-    		String query = "select * from newuser where username=? and password=?";
+    		String query = "select * from user_table where username=? and password=?";
     		PreparedStatement st = conn.prepareStatement(query);
     		st.setString(1, jtxtUsername.getText());
 			st.setString(2, jtxtPassword.getText());
     		ResultSet rs = st.executeQuery();
+    		int count = 0;
     		while(rs.next()){
     			
+    			count = count + 1;
+    			String uname = rs.getString("username");
+    			String psw = rs.getString("password");
+    			if((jtxtUsername.equals(uname))&& jtxtPassword.equals(psw)){
+        			JOptionPane.showMessageDialog(null, "Welcome to POS System");
+        			this.dispose();
+        			MainMenu menu = new MainMenu();
+                    menu.setVisible(true);
+                    
+        		}
+        		else{
+        			JOptionPane.showMessageDialog(null, "Invalid username or password");
+        		}
     		}
-    		MainMenu menu = new MainMenu();
-            menu.setVisible(true);
-            this.dispose();
+    		
+    		rs.close();
+    		st.close();
     		
     	}catch(Exception e){
-    		JOptionPane.showMessageDialog(null, "Invalid username or password");
+    		JOptionPane.showMessageDialog(null, e);
     	} 
     		
-    		
-    	
-        //String st = jtxtUsername.getText();
-       // String st2 = jtxtPassword.getText();
-       // if(st.equals("admin") && st2.equals("12345")){
-        
-         //System.exit(0);
-        //}
-       // else{
-           // JOptionPane.showMessageDialog(null, "Invalid username or password");
-           // jtxtPassword.setText(null);
-            //jtxtUsername.setText(null);
-       // }
-
     }                                        
 
     private void jbtAddNewUserActionPerformed(java.awt.event.ActionEvent evt) {                                              
-     //new user
+     //Code to display new user window
         NewRegister nr = new NewRegister();
         nr.setVisible(true);
         this.dispose();
@@ -291,11 +296,11 @@ public class LoginPage extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+        // Call the method defined for database connection in to main method
+    	LoginPage lg = new LoginPage();
+    	lg.DBConnection();
+    	
+    	
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
