@@ -1,36 +1,12 @@
+
+
 import java.sql.*;
 import javax.swing.*;
 import javax.naming.spi.DirStateFactory.Result;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- *
- * @author USER
- */
-//import java.swing.*;
-//import java.awt.event.*;
-//import java.awt.*;
-
 public class LoginPage extends javax.swing.JFrame {
-	// Create object for the connection
-	Connection conn;
-	//Create method for the datbase connection
-	public void DBConnection(){
-		try{
-    		//Class.forName("com.jdbc.mysql.Driver");
-    		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/admin_database","root","");
-    		JOptionPane.showMessageDialog(null, "Connection Successful");
-    	}catch(Exception e){
-    		JOptionPane.showMessageDialog(null, e);
-    	} 
-		
-	}	
-
+	
+//  default serial number
 	private static final long serialVersionUID = 1L;
 	/**
      * Creates new form MySystemWindow
@@ -246,44 +222,52 @@ public class LoginPage extends javax.swing.JFrame {
 
     @SuppressWarnings("deprecation")
 	private void jbtLoginActionPerformed(java.awt.event.ActionEvent evt) {
-    	// Code used to authenticate user 
+    	
     	try{
-    		String query = "select * from user_table where username=? and password=?";
-    		PreparedStatement st = conn.prepareStatement(query);
-    		st.setString(1, jtxtUsername.getText());
-			st.setString(2, jtxtPassword.getText());
-    		ResultSet rs = st.executeQuery();
-    		int count = 0;
-    		while(rs.next()){
+    		//Get connection
+    		Connection conn;
+    		Class.forName("com.mysql.jdbc.Driver");
+    		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/admin_database", "root", "");
+    		//JOptionPane.showMessageDialog(null, "Connection successful");
+    		
+    		// set query
+    		String query = "SELECT * FROM user_table";
+    		Statement statement = conn.createStatement();
+    		ResultSet result = statement.executeQuery(query);
+    		String user = null;
+    		String pass = null;
+    		while(result.next()){
+    			user = result.getString("username");
+    			pass = result.getString("password");
     			
-    			count = count + 1;
-    			String uname = rs.getString("username");
-    			String psw = rs.getString("password");
-    			if((jtxtUsername.equals(uname))&& jtxtPassword.equals(psw)){
-        			JOptionPane.showMessageDialog(null, "Welcome to POS System");
-        			this.dispose();
-        			MainMenu menu = new MainMenu();
-                    menu.setVisible(true);
-                    
-        		}
-        		else{
-        			JOptionPane.showMessageDialog(null, "Invalid username or password");
-        		}
+    			if (jtxtUsername.getText().equals(user)&&jtxtPassword.getText().equals(pass)){
+    				JOptionPane.showMessageDialog(null, "Welcome access granted");
+    				MainMenu menu = new MainMenu();
+    				menu.setVisible(true);
+    				this.dispose();
+    				break;
+    				
+    			}
+    			else{JOptionPane.showMessageDialog(null, "Invalid Username or password");
+    			jtxtUsername.setText(null);
+    			jtxtPassword.setText(null);
+    			break;
+    			}
     		}
-    		
-    		rs.close();
-    		st.close();
-    		
+    		result.close();
+    		statement.close();
+    		conn.close();
     	}catch(Exception e){
-    		JOptionPane.showMessageDialog(null, e);
+    		JOptionPane.showMessageDialog(null, "error occured");
     	} 
     		
-    }                                        
-
+    } 
+   
+    
     private void jbtAddNewUserActionPerformed(java.awt.event.ActionEvent evt) {                                              
      //Code to display new user window
-        NewRegister nr = new NewRegister();
-        nr.setVisible(true);
+        NewRegister register = new NewRegister();
+        register.setVisible(true);
         this.dispose();
     }                                             
 
@@ -296,9 +280,6 @@ public class LoginPage extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        // Call the method defined for database connection in to main method
-    	LoginPage lg = new LoginPage();
-    	lg.DBConnection();
     	
     	
         try {
